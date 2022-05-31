@@ -3,9 +3,34 @@ import Sidebar from '../../components/sidebar/Sidebar'
 import Navbar from '../../components/navbar/Navbar'
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import { useState } from 'react';
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore"; 
+import { auth, db } from '../../firebase';
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const New = ({ inputs, title} ) => {
   const [file, setFile] = useState("");
+  const [data, setData] = useState({})
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      await setDoc(doc(db, "users", res.user.uid), {
+        ...data,
+        timeStamp: serverTimestamp()
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleInput = (e) => {
+    const id = e.target.id;
+    const value = e.target.value;
+
+    setData({ ...data, [id]: value })
+  };
+
   return (
     <div className='new'>
       <Sidebar/>
@@ -23,7 +48,7 @@ const New = ({ inputs, title} ) => {
             />
           </div>
           <div className="right">
-            <form action="">
+            <form onSubmit={handleAdd}>
               <div className="formInput">
                 <label htmlFor='file'>
                   Image: <DriveFolderUploadIcon className='icon'/>
@@ -33,10 +58,10 @@ const New = ({ inputs, title} ) => {
               {inputs.map(input => (
                 <div className="formInput" key={input.id}> 
                   <label>{input.label}</label>
-                  <input type={input.type} placeholder={input.placeholder} />
+                  <input id={input.id} type={input.type} placeholder={input.placeholder} onChange={handleInput} />
                 </div>
               ))}
-              <button>Send</button>
+              <button type='submit'>Send</button>
             </form>
           </div>
         </div>
