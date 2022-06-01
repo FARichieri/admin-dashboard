@@ -68,6 +68,10 @@
                         margin-top: 10px;
                         border-radius: 5px;
                         transition: .3s;
+
+                        &:disabled {
+                            background-color: rgba(4, 54, 54, 0.214);
+                        }
                     }
                     button:hover {
                         background-color: teal;
